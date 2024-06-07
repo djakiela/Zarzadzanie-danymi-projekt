@@ -13,11 +13,18 @@
         </div>
         <div class="form-group">
           <label for="password" class="form-label">Hasło:</label>
-          <input type="password" class="form-control" v-model="password" required />
+          <input
+            type="password"
+            class="form-control"
+            v-model="password"
+            required
+          />
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Zarejestruj</button>
-          <button @click="goHomePage" type="button" class="btn btn-secondary">Powrót</button>
+          <button @click="goHomePage" type="button" class="btn btn-secondary">
+            Powrót
+          </button>
         </div>
       </form>
     </div>
@@ -25,45 +32,45 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
-  name: 'RegisterPage',
+  name: "RegisterPage",
   data() {
     return {
-      username: '',
-      email: '',
-      password: ''
+      username: "",
+      email: "",
+      password: "",
     };
   },
   methods: {
     async register() {
       try {
-        const response = await axios.post('http://localhost:5000/register', {
+        const response = await axios.post("http://localhost:5000/register", {
           username: this.username,
           email: this.email,
-          password: this.password
+          password: this.password,
         });
-        console.log('Registration successful:', response.data);
-        this.$router.push('/login');
+        console.log("Registration successful:", response.data);
+        this.$router.push("/login");
       } catch (error) {
-        console.error('Error registering:', error);
+        console.error("Error registering:", error);
       }
     },
     goHomePage() {
-      this.$router.push('/');
-    }
-  }
+      this.$router.push("/");
+    },
+  },
 };
 </script>
 
 <style scoped>
 .form-container {
   display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    height: 100vh;
-    padding-top: 5rem;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100vh;
+  padding-top: 5rem;
 }
 
 .form-card {

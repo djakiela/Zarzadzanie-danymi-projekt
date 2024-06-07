@@ -41,7 +41,7 @@ export default {
     return {
       departure: "",
       destination: "",
-      date: "",
+      date: new Date(),
       passengers: 1,
       dateFormat: "dd.MM.yyyy",
     };
