@@ -2,7 +2,7 @@
   <header class="navbar">
     <div class="navbar-brand">
       <router-link to="/" class="navbar-item brand-title">
-        Wirtualna Tablica Ogłoszeń
+        Wirtualna Tablica Ogłoszeń Przejazdów
       </router-link>
       <router-link to="/search" class="navbar-item">
         <i class="fas fa-search"></i> Szukaj
