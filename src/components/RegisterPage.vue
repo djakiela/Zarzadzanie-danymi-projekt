@@ -5,24 +5,37 @@
       <form @submit.prevent="register">
         <div class="form-group">
           <label for="username" class="form-label">Nazwa użytkownika:</label>
-          <input type="text" class="form-control" v-model="username" required />
+          <input
+            type="text"
+            class="form-control"
+            id="username"
+            v-model="username"
+            required
+          />
         </div>
         <div class="form-group">
           <label for="email" class="form-label">Email:</label>
-          <input type="email" class="form-control" v-model="email" required />
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            v-model="email"
+            required
+          />
         </div>
         <div class="form-group">
           <label for="password" class="form-label">Hasło:</label>
           <input
             type="password"
             class="form-control"
+            id="password"
             v-model="password"
             required
           />
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Zarejestruj</button>
-          <button @click="goHomePage" type="button" class="btn btn-secondary">
+          <button @click="goBack" type="button" class="btn btn-secondary">
             Powrót
           </button>
         </div>
@@ -35,7 +48,6 @@
 import axios from "axios";
 
 export default {
-  name: "RegisterPage",
   data() {
     return {
       username: "",
@@ -46,18 +58,23 @@ export default {
   methods: {
     async register() {
       try {
-        const response = await axios.post("http://localhost:5000/register", {
+        const response = await axios.post("/api/register", {
           username: this.username,
           email: this.email,
           password: this.password,
         });
-        console.log("Registration successful:", response.data);
+        console.log("Registration successful:", response);
         this.$router.push("/login");
       } catch (error) {
         console.error("Error registering:", error);
+        if (error.response) {
+          alert("Rejestracja nie powiodła się: " + error.response.data.error);
+        } else {
+          alert("Rejestracja nie powiodła się: " + error.message);
+        }
       }
     },
-    goHomePage() {
+    goBack() {
       this.$router.push("/");
     },
   },

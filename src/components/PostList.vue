@@ -1,45 +1,51 @@
 <template>
   <div class="post-list">
+    <h2>Ostatnio dodane</h2>
     <div v-for="post in posts" :key="post.id" class="post-item">
-      <h2>{{ post.username }}</h2>
+      <h3>{{ post.user.username }}</h3>
       <p>{{ post.description }}</p>
       <p><strong>Miejsce wyjazdu:</strong> {{ post.departure }}</p>
       <p><strong>Miejsce docelowe:</strong> {{ post.destination }}</p>
       <p><strong>Data:</strong> {{ post.date }}</p>
       <p><strong>Godzina:</strong> {{ post.time }}</p>
       <p><strong>Ilość pasażerów:</strong> {{ post.passengers }}</p>
+      <button @click="showPhoneNumber(post.phone_number)">
+        Skontaktuj się
+      </button>
+      <p v-if="phoneNumber === post.phone_number">
+        <strong>Numer telefonu:</strong> {{ post.phone_number }}
+      </p>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
-      posts: [
-        {
-          id: 1,
-          username: "użytkownik1",
-          description: "To jest przykładowy opis przejazdu.",
-          departure: "Warszawa",
-          destination: "Kraków",
-          date: "2023-06-10",
-          time: "14:00",
-          passengers: 3,
-        },
-        {
-          id: 2,
-          username: "użytkownik2",
-          description: "Drugi przykładowy opis przejazdu.",
-          departure: "Gdańsk",
-          destination: "Wrocław",
-          date: "2023-06-12",
-          time: "09:00",
-          passengers: 2,
-        },
-        // Dodaj więcej przykładowych postów, jeśli to konieczne
-      ],
+      posts: [],
+      phoneNumber: null,
     };
+  },
+  created() {
+    this.fetchPosts();
+  },
+  methods: {
+    fetchPosts() {
+      axios
+        .get("http://localhost:5000/api/rides")
+        .then((response) => {
+          this.posts = response.data;
+        })
+        .catch((error) => {
+          console.error("Error fetching posts:", error);
+        });
+    },
+    showPhoneNumber(phoneNumber) {
+      this.phoneNumber = phoneNumber;
+    },
   },
 };
 </script>
@@ -58,7 +64,7 @@ export default {
   margin-bottom: 2rem;
 }
 
-.post-item h2 {
+.post-item h3 {
   font-size: 1.5rem;
   color: #3273dc;
 }

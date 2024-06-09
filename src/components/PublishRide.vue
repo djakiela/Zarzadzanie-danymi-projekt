@@ -12,7 +12,7 @@
       </div>
       <div class="form-group">
         <label for="date">Data:</label>
-        <Datepicker v-model="date" :format="dateFormat" required />
+        <input type="date" id="date" v-model="date" required />
       </div>
       <div class="form-group">
         <label for="time">Godzina:</label>
@@ -27,49 +27,68 @@
           <option value="4">4 pasażerów</option>
         </select>
       </div>
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">
-          Opublikuj przejazd
-        </button>
-        <button @click="goHomePage" type="button" class="btn btn-secondary">
-          Powrót
-        </button>
+      <div class="form-group">
+        <label for="phone_number">Numer telefonu:</label>
+        <input type="text" id="phone_number" v-model="phone_number" required />
       </div>
+      <button type="submit" class="btn btn-primary">Opublikuj przejazd</button>
+      <button @click="goHomePage" type="button" class="btn btn-secondary">
+        Powrót
+      </button>
     </form>
   </div>
 </template>
 
 <script>
-import Datepicker from "vue3-datepicker";
+import axios from "axios";
 
 export default {
-  name: "PublishRide",
-  components: {
-    Datepicker,
-  },
   data() {
     return {
       departure: "",
       destination: "",
-      date: new Date(),
+      date: "",
       time: "",
       passengers: 1,
-      dateFormat: "dd.MM.yyyy",
+      phone_number: "",
     };
   },
   methods: {
     publishRide() {
-      console.log("Publishing ride:", {
-        departure: this.departure,
-        destination: this.destination,
-        date: this.date,
-        time: this.time,
-        passengers: this.passengers,
-      });
-      // Implement the logic to publish the ride here
+      if (!this.isLoggedIn()) {
+        alert("Proszę zalogować się przed dodaniem posta.");
+        return;
+      }
+
+      axios
+        .post("http://localhost:5000/api/rides", {
+          departure: this.departure,
+          destination: this.destination,
+          date: this.date,
+          time: this.time,
+          passengers: this.passengers,
+          phone_number: this.phone_number,
+          user_id: this.getUserId(), // Zakładamy, że istnieje metoda zwracająca ID zalogowanego użytkownika
+        })
+        .then(() => {
+          alert("Przejazd został opublikowany!");
+          this.$router.push("/");
+        })
+        .catch((error) => {
+          console.error("Error publishing ride:", error);
+        });
     },
     goHomePage() {
       this.$router.push("/");
+    },
+    isLoggedIn() {
+      // Zakładamy, że istnieje metoda sprawdzająca, czy użytkownik jest zalogowany
+      return !!localStorage.getItem("user");
+    },
+    getUserId() {
+      // Zakładamy, że ID użytkownika jest przechowywane w localStorage
+      const user = JSON.parse(localStorage.getItem("user"));
+      return user ? user.id : null;
     },
   },
 };
@@ -100,11 +119,6 @@ export default {
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 0.25rem;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: space-between;
 }
 
 .btn {

@@ -12,6 +12,9 @@
       </router-link>
     </div>
     <div class="navbar-end">
+      <div v-if="username" class="navbar-item">
+        {{ username }}
+      </div>
       <div
         class="navbar-item has-dropdown"
         :class="{ 'is-active': isDropdownActive }"
@@ -20,12 +23,21 @@
           <i class="fas fa-user"></i>
         </a>
         <div class="navbar-dropdown is-right" v-show="isDropdownActive">
-          <router-link to="/login" class="navbar-item" @click="closeDropdown"
+          <router-link
+            v-if="!username"
+            to="/login"
+            class="navbar-item"
+            @click="closeDropdown"
             >Logowanie</router-link
           >
-          <router-link to="/register" class="navbar-item" @click="closeDropdown"
+          <router-link
+            v-if="!username"
+            to="/register"
+            class="navbar-item"
+            @click="closeDropdown"
             >Rejestracja</router-link
           >
+          <a v-if="username" @click="logout" class="navbar-item">Wyloguj</a>
         </div>
       </div>
     </div>
@@ -33,10 +45,13 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
       isDropdownActive: false,
+      username: null,
     };
   },
   methods: {
@@ -52,9 +67,29 @@ export default {
         this.closeDropdown();
       }
     },
+    async fetchCurrentUser() {
+      try {
+        const response = await axios.get("/api/current_user", {
+          withCredentials: true,
+        });
+        this.username = response.data.username;
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      }
+    },
+    async logout() {
+      try {
+        await axios.post("/api/logout", {}, { withCredentials: true });
+        this.username = null;
+        this.$router.push("/");
+      } catch (error) {
+        console.error("Error logging out:", error);
+      }
+    },
   },
   mounted() {
     document.addEventListener("click", this.handleClickOutside);
+    this.fetchCurrentUser();
   },
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside);

@@ -2,7 +2,7 @@
   <div class="home-page">
     <SearchForm />
     <div class="recent-rides">
-      <h2>Ostatnio dodane</h2>
+      <h2 class="recent-rides-title">Ostatnio dodane</h2>
       <PostList />
     </div>
   </div>
@@ -27,5 +27,11 @@ export default {
 
 .recent-rides {
   margin-top: 2rem;
+}
+
+.recent-rides-title {
+  margin-top: 3rem;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 </style>

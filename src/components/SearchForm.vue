@@ -41,7 +41,7 @@ export default {
     return {
       departure: "",
       destination: "",
-      date: new Date(),
+      date: "",
       passengers: 1,
       dateFormat: "dd.MM.yyyy",
     };
@@ -55,7 +55,6 @@ export default {
         this.date,
         this.passengers
       );
-      // Implement search logic here
     },
   },
 };
@@ -72,6 +71,7 @@ export default {
   border-radius: 8px;
   max-width: 1000px;
   margin: 0 auto;
+  margin-bottom: 2rem; /* Adjust margin to create space between search form and posts */
 }
 
 .search-input {

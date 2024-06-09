@@ -5,20 +5,27 @@
       <form @submit.prevent="login">
         <div class="form-group">
           <label for="username" class="form-label">Nazwa użytkownika:</label>
-          <input type="text" class="form-control" v-model="username" required />
+          <input
+            type="text"
+            class="form-control"
+            id="username"
+            v-model="username"
+            required
+          />
         </div>
         <div class="form-group">
           <label for="password" class="form-label">Hasło:</label>
           <input
             type="password"
             class="form-control"
+            id="password"
             v-model="password"
             required
           />
         </div>
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Logowanie</button>
-          <button @click="goHomePage" type="button" class="btn btn-secondary">
+          <button type="submit" class="btn btn-primary">Zaloguj</button>
+          <button @click="goBack" type="button" class="btn btn-secondary">
             Powrót
           </button>
         </div>
@@ -31,7 +38,6 @@
 import axios from "axios";
 
 export default {
-  name: "LoginPage",
   data() {
     return {
       username: "",
@@ -39,19 +45,21 @@ export default {
     };
   },
   methods: {
-    async login() {
-      try {
-        const response = await axios.post("http://localhost:5000/login", {
+    login() {
+      axios
+        .post("/api/login", {
           username: this.username,
           password: this.password,
+        })
+        .then(() => {
+          alert("Logowanie zakończone sukcesem!");
+          this.$router.push("/");
+        })
+        .catch((error) => {
+          alert("Logowanie nie powiodło się: " + error.response.data.error);
         });
-        console.log("Login successful:", response.data);
-        this.$router.push("/");
-      } catch (error) {
-        console.error("Error logging in:", error);
-      }
     },
-    goHomePage() {
+    goBack() {
       this.$router.push("/");
     },
   },
