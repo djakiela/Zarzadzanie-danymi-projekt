@@ -17,11 +17,9 @@ class User(UserMixin, db.Model):
 
     @property
     def is_active(self):
-        # Flask-Login requires this property
         return True
 
     def get_id(self):
-        # Flask-Login requires this method
         return self.id
 
     def to_dict(self):

@@ -71,7 +71,7 @@ export default {
   border-radius: 8px;
   max-width: 1000px;
   margin: 0 auto;
-  margin-bottom: 2rem; /* Adjust margin to create space between search form and posts */
+  margin-bottom: 2rem;
 }
 
 .search-input {

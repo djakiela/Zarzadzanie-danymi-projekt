@@ -11,3 +11,5 @@ class Config:
     SESSION_COOKIE_SECURE = False
     SESSION_TYPE = 'filesystem'
     SESSION_COOKIE_NAME = 'your-session-cookie-name'
+    REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_DURATION = 86400  # 1 day

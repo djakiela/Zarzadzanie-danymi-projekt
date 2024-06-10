@@ -1,6 +1,5 @@
 <template>
   <div class="post-list">
-    <h2>Ostatnio dodane</h2>
     <div v-for="post in posts" :key="post.id" class="post-item">
       <h3>{{ post.user.username }}</h3>
       <p>{{ post.description }}</p>

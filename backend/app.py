@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -19,7 +19,7 @@ from models import User
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-@app.route('/register', methods=['POST'])
+@app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
     username = data.get('username')
@@ -36,7 +36,7 @@ def register():
     
     return jsonify({"message": "User registered successfully"}), 201
 
-@app.route('/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
     username = data.get('username')
@@ -48,21 +48,18 @@ def login():
         return jsonify({"error": "Invalid credentials"}), 401
     
     login_user(user)
-    session['username'] = user.username  # Zapisz nazwę użytkownika w sesji
     return jsonify({"message": "Logged in successfully"}), 200
 
-@app.route('/logout', methods=['POST'])
+@app.route('/api/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
-    session.pop('username', None)  # Usuń nazwę użytkownika z sesji
     return jsonify({"message": "Logged out successfully"}), 200
 
-@app.route('/current_user', methods=['GET'])
+@app.route('/api/current_user', methods=['GET'])
 @login_required
 def get_current_user():
-    username = session.get('username')
-    return jsonify({"username": username, "email": current_user.email}), 200
+    return jsonify({"username": current_user.username, "email": current_user.email}), 200
 
 if __name__ == '__main__':
     app.run()
