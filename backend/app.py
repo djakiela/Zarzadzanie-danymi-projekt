@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_cors import CORS
+from models import User, Ride
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -55,6 +56,37 @@ def login():
 def logout():
     logout_user()
     return jsonify({"message": "Logged out successfully"}), 200
+
+@app.route('/api/current_user', methods=['GET'])
+@login_required
+def get_current_user():
+    return jsonify({"username": current_user.username, "email": current_user.email}), 200
+
+@app.route('/api/publish', methods=['POST'])
+@login_required
+def publish():
+    data = request.json
+    departure = data.get('departure')
+    destination = data.get('destination')
+    date = data.get('date')
+    time = data.get('time')
+    passengers = data.get('passengers')
+    phone_number = data.get('phone_number')
+    
+    new_ride = Ride(
+        departure=departure, 
+        destination=destination, 
+        date=date, 
+        time=time, 
+        passengers=passengers, 
+        phone_number=phone_number, 
+        user_id=current_user.id
+    )
+    db.session.add(new_ride)
+    db.session.commit()
+    
+    return jsonify({"message": "Ride published successfully"}), 201
+
 
 if __name__ == '__main__':
     app.run()
