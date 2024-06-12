@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from schemas import RideBase, RideDisplay, RideSearch
-from models import Ride
+from models import Ride, User
 from database import get_db
 from typing import List
 
@@ -28,12 +28,21 @@ def get_ride(id: int, db: Session = Depends(get_db)):
     ride = db.query(Ride).filter(Ride.id == id).first()
     if not ride:
         raise HTTPException(status_code=404, detail="Ride not found")
-    return ride
+    user = db.query(User).filter(User.id == ride.user_id).first()
+    ride_data = ride.__dict__
+    ride_data["username"] = user.username if user else "Unknown"
+    return ride_data
 
 @router.get("/", response_model=List[RideDisplay])
 def get_all_rides(db: Session = Depends(get_db)):
     rides = db.query(Ride).all()
-    return rides
+    rides_with_users = []
+    for ride in rides:
+        user = db.query(User).filter(User.id == ride.user_id).first()
+        ride_data = ride.__dict__
+        ride_data["username"] = user.username if user else "Unknown"
+        rides_with_users.append(ride_data)
+    return rides_with_users
 
 @router.post("/search", response_model=List[RideDisplay])
 def search_rides(request: RideSearch, db: Session = Depends(get_db)):
@@ -42,4 +51,10 @@ def search_rides(request: RideSearch, db: Session = Depends(get_db)):
         Ride.destination == request.destination,
         Ride.date == request.date
     ).all()
-    return rides
+    rides_with_users = []
+    for ride in rides:
+        user = db.query(User).filter(User.id == ride.user_id).first()
+        ride_data = ride.__dict__
+        ride_data["username"] = user.username if user else "Unknown"
+        rides_with_users.append(ride_data)
+    return rides_with_users

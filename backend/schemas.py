@@ -22,6 +22,8 @@ class RideBase(BaseModel):
     user_id: int
 
 class RideDisplay(RideBase):
+    username: str
+
     class Config():
         orm_mode = True
 

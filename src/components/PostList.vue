@@ -1,6 +1,6 @@
 <template>
   <div class="post-list">
-    <h1>Lista Przejazdów - ostatnio dodane</h1>
+    <h1>Lista Przejazdów</h1>
     <ul>
       <li v-for="ride in rides" :key="ride.id">
         <p>Miejsce wyjazdu: {{ ride.departure }}</p>
@@ -9,45 +9,37 @@
         <p>Godzina: {{ ride.time }}</p>
         <p>Ilość pasażerów: {{ ride.passengers }}</p>
         <p>Numer telefonu: {{ ride.phone_number }}</p>
+        <p>Dodane przez: {{ ride.username }}</p>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
-
 export default {
-  setup() {
-    const rides = ref([]);
-
-    const fetchRides = async () => {
-      try {
-        const response = await fetch("http://localhost:8000/ride", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          throw new Error("Nie udało się pobrać listy przejazdów.");
-        }
-
-        rides.value = await response.json();
-      } catch (error) {
-        console.error("Błąd podczas pobierania listy przejazdów:", error);
-      }
-    };
-
-    onMounted(() => {
-      fetchRides();
-    });
-
+  data() {
     return {
-      rides,
+      rides: [],
     };
+  },
+  async created() {
+    try {
+      const response = await fetch("http://localhost:8000/ride", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Nie udało się pobrać listy przejazdów.");
+      }
+
+      this.rides = await response.json();
+    } catch (error) {
+      console.error("Błąd podczas pobierania listy przejazdów:", error);
+    }
   },
 };
 </script>

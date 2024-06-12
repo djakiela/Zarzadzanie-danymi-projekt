@@ -12,7 +12,11 @@
       </router-link>
     </div>
     <div class="navbar-end">
+      <div v-if="currentUser">
+        <a class="navbar-item" @click="logout">Wyloguj</a>
+      </div>
       <div
+        v-else
         class="navbar-item has-dropdown"
         :class="{ 'is-active': isDropdownActive }"
       >
@@ -20,25 +24,12 @@
           <i class="fas fa-user"></i>
         </a>
         <div class="navbar-dropdown is-right" v-show="isDropdownActive">
-          <router-link
-            to="/login"
-            class="navbar-item"
-            @click="closeDropdown"
-            v-if="!currentUser"
+          <router-link to="/login" class="navbar-item" @click="closeDropdown"
+            >Logowanie</router-link
           >
-            Logowanie
-          </router-link>
-          <router-link
-            to="/register"
-            class="navbar-item"
-            @click="closeDropdown"
-            v-if="!currentUser"
+          <router-link to="/register" class="navbar-item" @click="closeDropdown"
+            >Rejestracja</router-link
           >
-            Rejestracja
-          </router-link>
-          <a class="navbar-item" @click="logout" v-if="currentUser">
-            Wyloguj
-          </a>
         </div>
       </div>
     </div>
