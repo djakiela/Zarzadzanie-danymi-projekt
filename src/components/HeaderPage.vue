@@ -48,47 +48,51 @@
 <script>
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { ref, computed } from "vue";
 
 export default {
-  data() {
-    return {
-      isDropdownActive: false,
+  setup() {
+    const store = useStore();
+    const router = useRouter();
+    const isDropdownActive = ref(false);
+
+    const currentUser = computed(() => store.state.user);
+
+    const toggleDropdown = () => {
+      isDropdownActive.value = !isDropdownActive.value;
     };
-  },
-  computed: {
-    currentUser() {
-      return this.$store.state.currentUser;
-    },
-  },
-  methods: {
-    toggleDropdown() {
-      this.isDropdownActive = !this.isDropdownActive;
-    },
-    closeDropdown() {
-      this.isDropdownActive = false;
-    },
-    async logout() {
-      const store = useStore();
-      const router = useRouter();
+
+    const closeDropdown = () => {
+      isDropdownActive.value = false;
+    };
+
+    const logout = async () => {
       try {
         const response = await fetch("http://localhost:8000/user/logout", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
         });
 
         if (!response.ok) {
           throw new Error("Nie udało się wylogować.");
         }
 
-        store.commit("setCurrentUser", null);
+        store.commit("setUser", null);
         router.push("/");
       } catch (error) {
         console.error("Błąd podczas wylogowywania:", error);
       }
-    },
+    };
+
+    return {
+      isDropdownActive,
+      currentUser,
+      toggleDropdown,
+      closeDropdown,
+      logout,
+    };
   },
 };
 </script>

@@ -4,6 +4,7 @@ from schemas import UserBase, UserDisplay, Login
 from models import User
 from database import get_db
 from hash import Hash
+from fastapi.responses import JSONResponse
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -27,6 +28,12 @@ def login(request: Login, db: Session = Depends(get_db)):
     if not Hash.verify(user.password, request.password):
         raise HTTPException(status_code=401, detail="Incorrect password")
     return {"message": "Login successful"}
+
+@router.post("/logout")
+def logout():
+    response = JSONResponse(content={"message": "Logout successful"})
+    response.delete_cookie(key="access_token")
+    return response
 
 @router.get("/{id}", response_model=UserDisplay)
 def get_user(id: int, db: Session = Depends(get_db)):

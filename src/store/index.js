@@ -13,6 +13,9 @@ const store = createStore({
     login({ commit }, user) {
       commit("setUser", user);
     },
+    logout({ commit }) {
+      commit("setUser", null);
+    },
   },
   getters: {
     user: (state) => state.user,
