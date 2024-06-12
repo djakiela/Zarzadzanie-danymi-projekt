@@ -1,123 +1,174 @@
 <template>
   <div class="search-form">
-    <input
-      type="text"
-      placeholder="Miejsce wyjazdu"
-      class="search-input"
-      v-model="departure"
-    />
-    <input
-      type="text"
-      placeholder="Miejsce docelowe"
-      class="search-input"
-      v-model="destination"
-    />
-    <div class="date-picker-wrapper">
-      <Datepicker
-        v-model="date"
-        :format="dateFormat"
-        placeholder="dd.mm.rrrr"
-        input-class="search-input"
-      />
+    <h1>Wyszukaj przejazd</h1>
+    <form @submit.prevent="searchRides">
+      <div class="form-group">
+        <label for="departure">Miejsce wyjazdu:</label>
+        <input type="text" id="departure" v-model="departure" required />
+      </div>
+      <div class="form-group">
+        <label for="destination">Miejsce docelowe:</label>
+        <input type="text" id="destination" v-model="destination" required />
+      </div>
+      <div class="form-group">
+        <label for="date">Data:</label>
+        <input type="date" id="date" v-model="date" required />
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Wyszukaj</button>
+        <button
+          v-if="isSearchPage"
+          type="button"
+          class="btn btn-secondary btn-grey"
+          @click="goBack"
+        >
+          Powrót
+        </button>
+      </div>
+    </form>
+
+    <div class="ride-results" v-if="rides.length">
+      <h2>Wyniki wyszukiwania:</h2>
+      <ul>
+        <li v-for="ride in rides" :key="ride.id">
+          <strong>{{ ride.departure }}</strong> do
+          <strong>{{ ride.destination }}</strong> w dniu
+          <strong>{{ ride.date }}</strong> o godzinie
+          <strong>{{ ride.time }}</strong
+          >, pasażerów: <strong>{{ ride.passengers }}</strong
+          >, numer telefonu: <strong>{{ ride.phone_number }}</strong>
+        </li>
+      </ul>
     </div>
-    <select v-model="passengers" class="search-input">
-      <option value="1">1 pasażer</option>
-      <option value="2">2 pasażerów</option>
-      <option value="3">3 pasażerów</option>
-      <option value="4">4 pasażerów</option>
-    </select>
-    <button class="search-button" @click="search">Szukaj</button>
   </div>
 </template>
 
 <script>
-import Datepicker from "vue3-datepicker";
+import { useRouter } from "vue-router";
+import { ref, computed } from "vue";
 
 export default {
-  components: {
-    Datepicker,
-  },
-  data() {
-    return {
-      departure: "",
-      destination: "",
-      date: "",
-      passengers: 1,
-      dateFormat: "dd.MM.yyyy",
+  setup() {
+    const departure = ref("");
+    const destination = ref("");
+    const date = ref("");
+    const rides = ref([]);
+    const router = useRouter();
+
+    const isSearchPage = computed(
+      () => router.currentRoute.value.path === "/search"
+    );
+
+    const searchRides = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/ride/search", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            departure: departure.value,
+            destination: destination.value,
+            date: date.value,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Nie udało się wyszukać przejazdów.");
+        }
+
+        const data = await response.json();
+        rides.value = data;
+      } catch (error) {
+        console.error("Błąd podczas wyszukiwania przejazdów:", error);
+      }
     };
-  },
-  methods: {
-    search() {
-      console.log(
-        "Searching for:",
-        this.departure,
-        this.destination,
-        this.date,
-        this.passengers
-      );
-    },
+
+    const goBack = () => {
+      router.push("/");
+    };
+
+    return {
+      departure,
+      destination,
+      date,
+      rides,
+      searchRides,
+      goBack,
+      isSearchPage,
+    };
   },
 };
 </script>
 
 <style scoped>
 .search-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  background-color: white;
+  border-radius: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+}
+
+.form-actions {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  max-width: 1000px;
-  margin: 0 auto;
-  margin-bottom: 2rem;
 }
 
-.search-input {
-  flex: 1;
-  margin-right: 1rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid #dcdcdc;
-  border-radius: 4px;
-  font-size: 1rem;
-  color: #4a4a4a;
-  background-color: #f5f5f5;
-}
-
-.search-input:last-child {
-  margin-right: 0;
-}
-
-.date-picker-wrapper {
-  flex: 1;
-  margin-right: 1rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid #dcdcdc;
-  border-radius: 4px;
-  font-size: 1rem;
-  color: #4a4a4a;
-  background-color: #f5f5f5;
-}
-
-.search-button {
+.btn {
   background-color: #3273dc;
-  color: #fff;
+  color: white;
   border: none;
   padding: 0.5rem 1rem;
-  font-size: 1rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.search-button:hover {
+.btn:hover {
   background-color: #275ba8;
 }
 
-select.search-input {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+.btn-grey {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-grey:hover {
+  background-color: #5a6268;
+}
+
+.ride-results {
+  margin-top: 2rem;
+}
+
+.ride-results h2 {
+  margin-bottom: 1rem;
+}
+
+.ride-results ul {
+  list-style: none;
+  padding: 0;
+}
+
+.ride-results li {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ccc;
 }
 </style>

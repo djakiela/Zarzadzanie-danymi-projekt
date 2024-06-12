@@ -32,15 +32,12 @@
         <input type="text" id="phone_number" v-model="phone_number" required />
       </div>
       <button type="submit" class="btn btn-primary">Opublikuj przejazd</button>
-      <button @click="goHomePage" type="button" class="btn btn-secondary">
-        Powrót
-      </button>
     </form>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import { useRouter } from "vue-router";
 
 export default {
   data() {
@@ -54,41 +51,40 @@ export default {
     };
   },
   methods: {
-    publishRide() {
-      if (!this.isLoggedIn()) {
-        alert("Proszę zalogować się przed dodaniem posta.");
-        return;
-      }
-
-      axios
-        .post("http://localhost:5000/api/rides", {
-          departure: this.departure,
-          destination: this.destination,
-          date: this.date,
-          time: this.time,
-          passengers: this.passengers,
-          phone_number: this.phone_number,
-          user_id: this.getUserId(), // Zakładamy, że istnieje metoda zwracająca ID zalogowanego użytkownika
-        })
-        .then(() => {
-          alert("Przejazd został opublikowany!");
-          this.$router.push("/");
-        })
-        .catch((error) => {
-          console.error("Error publishing ride:", error);
+    async publishRide() {
+      const router = useRouter();
+      try {
+        const response = await fetch("http://localhost:8000/ride/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            departure: this.departure,
+            destination: this.destination,
+            date: this.date,
+            time: this.time,
+            passengers: this.passengers,
+            phone_number: this.phone_number,
+          }),
         });
-    },
-    goHomePage() {
-      this.$router.push("/");
-    },
-    isLoggedIn() {
-      // Zakładamy, że istnieje metoda sprawdzająca, czy użytkownik jest zalogowany
-      return !!localStorage.getItem("user");
-    },
-    getUserId() {
-      // Zakładamy, że ID użytkownika jest przechowywane w localStorage
-      const user = JSON.parse(localStorage.getItem("user"));
-      return user ? user.id : null;
+
+        if (!response.ok) {
+          throw new Error("Nie udało się opublikować przejazdu.");
+        }
+
+        alert("Przejazd został opublikowany!");
+        router.push("/");
+      } catch (error) {
+        console.error("Błąd podczas publikacji przejazdu:", error);
+        if (error.message.includes("401")) {
+          alert("Proszę zalogować się przed dodaniem posta.");
+          router.push("/login");
+        } else {
+          alert("Błąd podczas publikacji przejazdu.");
+        }
+      }
     },
   },
 };
@@ -132,13 +128,5 @@ export default {
 
 .btn:hover {
   background-color: #275ba8;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-}
-
-.btn-secondary:hover {
-  background-color: #5a6268;
 }
 </style>

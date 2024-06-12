@@ -6,11 +6,11 @@ import PublishRide from "./components/PublishRide.vue";
 import SearchForm from "./components/SearchForm.vue";
 
 const routes = [
-  { path: "/", name: "home", component: HomePage },
-  { path: "/login", name: "login", component: LoginPage },
-  { path: "/register", name: "register", component: RegisterPage },
-  { path: "/publish", name: "publish", component: PublishRide },
-  { path: "/search", name: "search", component: SearchForm },
+  { path: "/", component: HomePage },
+  { path: "/login", component: LoginPage },
+  { path: "/register", component: RegisterPage },
+  { path: "/publish", component: PublishRide },
+  { path: "/search", component: SearchForm },
 ];
 
 const router = createRouter({

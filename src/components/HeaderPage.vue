@@ -16,7 +16,7 @@
         class="navbar-item has-dropdown"
         :class="{ 'is-active': isDropdownActive }"
       >
-        <a class="navbar-link" @click="toggleDropdown" v-if="!currentUser">
+        <a class="navbar-link" @click="toggleDropdown">
           <i class="fas fa-user"></i>
         </a>
         <div class="navbar-dropdown is-right" v-show="isDropdownActive">
@@ -36,15 +36,18 @@
           >
             Rejestracja
           </router-link>
+          <a class="navbar-item" @click="logout" v-if="currentUser">
+            Wyloguj
+          </a>
         </div>
-        <a class="navbar-item" @click="logout" v-if="currentUser"> Wyloguj </a>
       </div>
     </div>
   </header>
 </template>
 
 <script>
-import axios from "axios";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
 export default {
   data() {
@@ -52,39 +55,39 @@ export default {
       isDropdownActive: false,
     };
   },
+  computed: {
+    currentUser() {
+      return this.$store.state.currentUser;
+    },
+  },
   methods: {
-    toggleDropdown(event) {
-      event.stopPropagation();
+    toggleDropdown() {
       this.isDropdownActive = !this.isDropdownActive;
     },
     closeDropdown() {
       this.isDropdownActive = false;
     },
-    handleClickOutside(event) {
-      if (this.isDropdownActive && !this.$el.contains(event.target)) {
-        this.closeDropdown();
-      }
-    },
     async logout() {
+      const store = useStore();
+      const router = useRouter();
       try {
-        await axios.post("/logout", {}, { withCredentials: true });
-        this.$store.commit("clearUser");
-        this.$router.push("/");
+        const response = await fetch("http://localhost:8000/user/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          throw new Error("Nie udało się wylogować.");
+        }
+
+        store.commit("setCurrentUser", null);
+        router.push("/");
       } catch (error) {
-        console.error("Error logging out:", error);
+        console.error("Błąd podczas wylogowywania:", error);
       }
-    },
-  },
-  mounted() {
-    this.$store.dispatch("fetchCurrentUser");
-    document.addEventListener("click", this.handleClickOutside);
-  },
-  beforeUnmount() {
-    document.removeEventListener("click", this.handleClickOutside);
-  },
-  computed: {
-    currentUser() {
-      return this.$store.state.currentUser;
     },
   },
 };

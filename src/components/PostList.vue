@@ -1,50 +1,53 @@
 <template>
   <div class="post-list">
-    <div v-for="post in posts" :key="post.id" class="post-item">
-      <h3>{{ post.user.username }}</h3>
-      <p>{{ post.description }}</p>
-      <p><strong>Miejsce wyjazdu:</strong> {{ post.departure }}</p>
-      <p><strong>Miejsce docelowe:</strong> {{ post.destination }}</p>
-      <p><strong>Data:</strong> {{ post.date }}</p>
-      <p><strong>Godzina:</strong> {{ post.time }}</p>
-      <p><strong>Ilość pasażerów:</strong> {{ post.passengers }}</p>
-      <button @click="showPhoneNumber(post.phone_number)">
-        Skontaktuj się
-      </button>
-      <p v-if="phoneNumber === post.phone_number">
-        <strong>Numer telefonu:</strong> {{ post.phone_number }}
-      </p>
-    </div>
+    <h1>Lista Przejazdów - ostatnio dodane</h1>
+    <ul>
+      <li v-for="ride in rides" :key="ride.id">
+        <p>Miejsce wyjazdu: {{ ride.departure }}</p>
+        <p>Miejsce docelowe: {{ ride.destination }}</p>
+        <p>Data: {{ ride.date }}</p>
+        <p>Godzina: {{ ride.time }}</p>
+        <p>Ilość pasażerów: {{ ride.passengers }}</p>
+        <p>Numer telefonu: {{ ride.phone_number }}</p>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import { ref, onMounted } from "vue";
 
 export default {
-  data() {
-    return {
-      posts: [],
-      phoneNumber: null,
-    };
-  },
-  created() {
-    this.fetchPosts();
-  },
-  methods: {
-    fetchPosts() {
-      axios
-        .get("http://localhost:5000/api/rides")
-        .then((response) => {
-          this.posts = response.data;
-        })
-        .catch((error) => {
-          console.error("Error fetching posts:", error);
+  setup() {
+    const rides = ref([]);
+
+    const fetchRides = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/ride", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
         });
-    },
-    showPhoneNumber(phoneNumber) {
-      this.phoneNumber = phoneNumber;
-    },
+
+        if (!response.ok) {
+          throw new Error("Nie udało się pobrać listy przejazdów.");
+        }
+
+        rides.value = await response.json();
+      } catch (error) {
+        console.error("Błąd podczas pobierania listy przejazdów:", error);
+      }
+    };
+
+    onMounted(() => {
+      fetchRides();
+    });
+
+    return {
+      rides,
+    };
   },
 };
 </script>
@@ -54,26 +57,22 @@ export default {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
-  background: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
 }
 
-.post-item {
-  margin-bottom: 2rem;
+.post-list ul {
+  list-style-type: none;
+  padding: 0;
 }
 
-.post-item h3 {
-  font-size: 1.5rem;
-  color: #3273dc;
+.post-list li {
+  background-color: white;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
 }
 
-.post-item p {
-  font-size: 1rem;
-  color: #4a4a4a;
-}
-
-.post-item p strong {
-  color: #000;
+.post-list p {
+  margin: 0.5rem 0;
 }
 </style>
