@@ -31,61 +31,89 @@
         <label for="phone_number">Numer telefonu:</label>
         <input type="text" id="phone_number" v-model="phone_number" required />
       </div>
-      <button type="submit" class="btn btn-primary">Opublikuj przejazd</button>
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary">
+          Opublikuj przejazd
+        </button>
+        <button type="button" class="btn btn-secondary" @click="goBack">
+          Powrót
+        </button>
+      </div>
     </form>
   </div>
 </template>
 
 <script>
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import { ref } from "vue";
 
 export default {
-  data() {
-    return {
-      departure: "",
-      destination: "",
-      date: "",
-      time: "",
-      passengers: 1,
-      phone_number: "",
-    };
-  },
-  methods: {
-    async publishRide() {
-      const router = useRouter();
+  setup() {
+    const store = useStore();
+    const router = useRouter();
+
+    const departure = ref("");
+    const destination = ref("");
+    const date = ref("");
+    const time = ref("");
+    const passengers = ref(1);
+    const phone_number = ref("");
+
+    const publishRide = async () => {
+      const user = store.state.user;
+      if (!user) {
+        alert("Proszę zalogować się przed dodaniem przejazdu.");
+        router.push("/login");
+        return;
+      }
+
       try {
-        const response = await fetch("http://localhost:8000/ride/", {
+        const response = await fetch("http://localhost:8000/ride", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           credentials: "include",
           body: JSON.stringify({
-            departure: this.departure,
-            destination: this.destination,
-            date: this.date,
-            time: this.time,
-            passengers: this.passengers,
-            phone_number: this.phone_number,
+            departure: departure.value,
+            destination: destination.value,
+            date: date.value,
+            time: time.value,
+            passengers: passengers.value,
+            phone_number: phone_number.value,
           }),
         });
 
         if (!response.ok) {
-          throw new Error("Nie udało się opublikować przejazdu.");
+          const errorData = await response.json();
+          throw new Error(
+            `Nie udało się opublikować przejazdu: ${errorData.detail}`
+          );
         }
 
         alert("Przejazd został opublikowany!");
         router.push("/");
       } catch (error) {
         console.error("Błąd podczas publikacji przejazdu:", error);
-        if (error.message.includes("401")) {
-          alert("Proszę zalogować się przed dodaniem posta.");
-          router.push("/login");
-        } else {
-          alert("Błąd podczas publikacji przejazdu.");
-        }
+        alert("Błąd podczas publikacji przejazdu.");
       }
-    },
+    };
+
+    const goBack = () => {
+      router.push("/");
+    };
+
+    return {
+      departure,
+      destination,
+      date,
+      time,
+      passengers,
+      phone_number,
+      publishRide,
+      goBack,
+    };
   },
 };
 </script>
@@ -117,6 +145,13 @@ export default {
   border-radius: 0.25rem;
 }
 
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
 .btn {
   background-color: #3273dc;
   color: white;
@@ -126,7 +161,15 @@ export default {
   cursor: pointer;
 }
 
+.btn-secondary {
+  background-color: #6c757d;
+}
+
 .btn:hover {
   background-color: #275ba8;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
 }
 </style>

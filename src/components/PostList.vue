@@ -2,14 +2,18 @@
   <div class="post-list">
     <h1>Lista Przejazdów</h1>
     <ul>
-      <li v-for="ride in rides" :key="ride.id">
+      <li v-for="(ride, index) in rides" :key="ride.id">
         <p>Miejsce wyjazdu: {{ ride.departure }}</p>
         <p>Miejsce docelowe: {{ ride.destination }}</p>
         <p>Data: {{ ride.date }}</p>
         <p>Godzina: {{ ride.time }}</p>
         <p>Ilość pasażerów: {{ ride.passengers }}</p>
-        <p>Numer telefonu: {{ ride.phone_number }}</p>
-        <p>Dodane przez: {{ ride.username }}</p>
+        <p v-if="ride.showPhoneNumber">
+          Numer telefonu: {{ ride.phone_number }}
+        </p>
+        <button @click="togglePhoneNumber(index)" class="btn">
+          {{ ride.showPhoneNumber ? "Ukryj numer" : "Skontaktuj się" }}
+        </button>
       </li>
     </ul>
   </div>
@@ -36,10 +40,16 @@ export default {
         throw new Error("Nie udało się pobrać listy przejazdów.");
       }
 
-      this.rides = await response.json();
+      const data = await response.json();
+      this.rides = data.map((ride) => ({ ...ride, showPhoneNumber: false }));
     } catch (error) {
       console.error("Błąd podczas pobierania listy przejazdów:", error);
     }
+  },
+  methods: {
+    togglePhoneNumber(index) {
+      this.rides[index].showPhoneNumber = !this.rides[index].showPhoneNumber;
+    },
   },
 };
 </script>
@@ -66,5 +76,18 @@ export default {
 
 .post-list p {
   margin: 0.5rem 0;
+}
+
+button {
+  background-color: #3273dc;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #275ba8;
 }
 </style>

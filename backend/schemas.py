@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional
+from datetime import datetime
 
 class UserBase(BaseModel):
     username: str
@@ -19,11 +21,8 @@ class RideBase(BaseModel):
     time: str
     passengers: int
     phone_number: str
-    user_id: int
 
 class RideDisplay(RideBase):
-    username: str
-
     class Config():
         orm_mode = True
 
@@ -31,6 +30,13 @@ class RideSearch(BaseModel):
     departure: str
     destination: str
     date: str
+
+    @field_validator('date')
+    def format_date(cls, value):
+        try:
+            return datetime.strptime(value, '%Y-%m-%d').strftime('%d.%m.%Y')
+        except ValueError:
+            raise ValueError("Incorrect date format, should be YYYY-MM-DD")
 
 class Login(BaseModel):
     username: str

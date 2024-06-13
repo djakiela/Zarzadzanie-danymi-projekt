@@ -1,6 +1,6 @@
 <template>
   <div class="home-page">
-    <SearchForm />
+    <SearchForm @search="goSearch" />
     <div class="recent-rides">
       <PostList />
     </div>
@@ -10,11 +10,26 @@
 <script>
 import SearchForm from "./SearchForm.vue";
 import PostList from "./PostList.vue";
+import { useRouter } from "vue-router";
 
 export default {
   components: {
     SearchForm,
     PostList,
+  },
+  setup() {
+    const router = useRouter();
+
+    const goSearch = (searchParams) => {
+      router.push({
+        path: "/search",
+        query: searchParams,
+      });
+    };
+
+    return {
+      goSearch,
+    };
   },
 };
 </script>

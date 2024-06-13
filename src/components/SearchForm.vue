@@ -1,7 +1,7 @@
 <template>
   <div class="search-form">
     <h1>Wyszukaj przejazd</h1>
-    <form @submit.prevent="searchRides">
+    <form @submit.prevent="emitSearch">
       <div class="form-group">
         <label for="departure">Miejsce wyjazdu:</label>
         <input type="text" id="departure" v-model="departure" required />
@@ -16,12 +16,7 @@
       </div>
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">Wyszukaj</button>
-        <button
-          v-if="isSearchPage"
-          type="button"
-          class="btn btn-secondary btn-grey"
-          @click="goBack"
-        >
+        <button type="button" class="btn btn-secondary" @click="goBack">
           Powrót
         </button>
       </div>
@@ -31,12 +26,17 @@
       <h2>Wyniki wyszukiwania:</h2>
       <ul>
         <li v-for="ride in rides" :key="ride.id">
-          <strong>{{ ride.departure }}</strong> do
-          <strong>{{ ride.destination }}</strong> w dniu
-          <strong>{{ ride.date }}</strong> o godzinie
-          <strong>{{ ride.time }}</strong
-          >, pasażerów: <strong>{{ ride.passengers }}</strong
-          >, numer telefonu: <strong>{{ ride.phone_number }}</strong>
+          <p>Miejsce wyjazdu: {{ ride.departure }}</p>
+          <p>Miejsce docelowe: {{ ride.destination }}</p>
+          <p>Data: {{ ride.date }}</p>
+          <p>Godzina: {{ ride.time }}</p>
+          <p>Ilość pasażerów: {{ ride.passengers }}</p>
+          <p v-if="ride.showPhoneNumber">
+            Numer telefonu: {{ ride.phone_number }}
+          </p>
+          <button @click="togglePhoneNumber(ride.id)" class="btn btn-primary">
+            {{ ride.showPhoneNumber ? "Ukryj numer" : "Skontaktuj się" }}
+          </button>
         </li>
       </ul>
     </div>
@@ -44,20 +44,17 @@
 </template>
 
 <script>
-import { useRouter } from "vue-router";
-import { ref, computed } from "vue";
+import { ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 export default {
-  setup() {
+  setup(props, { emit }) {
     const departure = ref("");
     const destination = ref("");
     const date = ref("");
     const rides = ref([]);
     const router = useRouter();
-
-    const isSearchPage = computed(
-      () => router.currentRoute.value.path === "/search"
-    );
+    const route = useRoute();
 
     const searchRides = async () => {
       try {
@@ -78,9 +75,19 @@ export default {
         }
 
         const data = await response.json();
-        rides.value = data;
+        rides.value = data.map((ride) => ({
+          ...ride,
+          showPhoneNumber: false,
+        }));
       } catch (error) {
         console.error("Błąd podczas wyszukiwania przejazdów:", error);
+      }
+    };
+
+    const togglePhoneNumber = (id) => {
+      const ride = rides.value.find((ride) => ride.id === id);
+      if (ride) {
+        ride.showPhoneNumber = !ride.showPhoneNumber;
       }
     };
 
@@ -88,14 +95,36 @@ export default {
       router.push("/");
     };
 
+    const emitSearch = () => {
+      emit("search", {
+        departure: departure.value,
+        destination: destination.value,
+        date: date.value,
+      });
+    };
+
+    onMounted(() => {
+      if (
+        route.query.departure &&
+        route.query.destination &&
+        route.query.date
+      ) {
+        departure.value = route.query.departure;
+        destination.value = route.query.destination;
+        date.value = route.query.date;
+        searchRides();
+      }
+    });
+
     return {
       departure,
       destination,
       date,
       rides,
       searchRides,
+      togglePhoneNumber,
       goBack,
-      isSearchPage,
+      emitSearch,
     };
   },
 };
@@ -145,15 +174,6 @@ export default {
   background-color: #275ba8;
 }
 
-.btn-grey {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-grey:hover {
-  background-color: #5a6268;
-}
-
 .ride-results {
   margin-top: 2rem;
 }
@@ -168,7 +188,22 @@ export default {
 }
 
 .ride-results li {
-  padding: 0.5rem;
-  border-bottom: 1px solid #ccc;
+  background-color: white;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+}
+
+.ride-results p {
+  margin: 0.5rem 0;
+}
+
+.btn-secondary {
+  background-color: gray;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
 }
 </style>

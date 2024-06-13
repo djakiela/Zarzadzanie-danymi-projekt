@@ -8,7 +8,6 @@ from hash import Hash
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    # To jest tylko przykład, musisz zaimplementować mechanizm tokenów JWT lub inny sposób autoryzacji
     user = db.query(User).filter(User.username == "example_username").first()
     if user is None:
         raise HTTPException(
