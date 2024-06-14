@@ -9,8 +9,12 @@ engine = create_engine(
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
+# Ustawienie bazowej klasy deklaratywnej
 Base = declarative_base()
 
+# Funkcja do pobierania sesji bazy danych
+# Zapewnia zarządzanie sesją bazy danych
 def get_db():
     db = SessionLocal()
     try:

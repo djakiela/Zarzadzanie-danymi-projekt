@@ -2,6 +2,9 @@ from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
+# Klasa do haszowania i weryfikacji haseł
+# Funkcja bcrypt hashuje hasło, a funkcja verify sprawdza zgodność hasła
 class Hash:
     @staticmethod
     def bcrypt(password: str):

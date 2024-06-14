@@ -5,6 +5,7 @@ from database import engine, Base
 
 app = FastAPI()
 
+# Tworzenie tabel w bazie danych na podstawie modeli
 Base.metadata.create_all(bind=engine)
 
 app.add_middleware(

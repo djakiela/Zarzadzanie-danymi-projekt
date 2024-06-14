@@ -8,6 +8,9 @@ from fastapi.responses import JSONResponse
 
 router = APIRouter(prefix="/user", tags=["user"])
 
+
+# Endpoint do tworzenia nowego użytkownika
+# Dodaje nowego użytkownika do bazy danych i zwraca jego szczegóły
 @router.post("/", response_model=UserDisplay)
 def create_user(request: UserBase, db: Session = Depends(get_db)):
     new_user = User(
@@ -20,6 +23,9 @@ def create_user(request: UserBase, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
+
+# Endpoint do logowania użytkownika
+# Sprawdza poprawność danych logowania i zwraca komunikat o sukcesie
 @router.post("/login")
 def login(request: Login, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == request.username).first()
@@ -29,12 +35,18 @@ def login(request: Login, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Incorrect password")
     return {"message": "Login successful"}
 
+
+# Endpoint do wylogowania użytkownika
+# Usuwa ciasteczko sesji i zwraca komunikat o wylogowaniu
 @router.post("/logout")
 def logout():
     response = JSONResponse(content={"message": "Logout successful"})
     response.delete_cookie(key="access_token")
     return response
 
+
+# Endpoint do pobierania użytkownika po ID
+# Zwraca szczegóły użytkownika na podstawie podanego ID
 @router.get("/{id}", response_model=UserDisplay)
 def get_user(id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == id).first()
