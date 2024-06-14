@@ -31,13 +31,14 @@ class RideSearch(BaseModel):
     destination: str
     date: str
 
-    @field_validator('date')
-    def format_date(cls, value):
-        try:
-            return datetime.strptime(value, '%Y-%m-%d').strftime('%d.%m.%Y')
-        except ValueError:
-            raise ValueError("Incorrect date format, should be YYYY-MM-DD")
-
+#Konwertowanie daty z formatu YYYY-MM-DD na DD.MM.YYYY - aktualnie niepotrzebne, zmienione dane przy publikacji
+    #@field_validator('date')
+    #def format_date(cls, value):
+    #     try:
+    #        return datetime.strptime(value, '%Y-%m-%d').strftime('%d.%m.%Y')
+    #    except ValueError:
+    #        raise ValueError("Incorrect date format, should be YYYY-MM-DD")
+    
 class Login(BaseModel):
     username: str
     password: str

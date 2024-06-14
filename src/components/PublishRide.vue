@@ -29,7 +29,16 @@
       </div>
       <div class="form-group">
         <label for="phone_number">Numer telefonu:</label>
-        <input type="text" id="phone_number" v-model="phone_number" required />
+        <input
+          type="text"
+          id="phone_number"
+          v-model="phone_number"
+          @input="validatePhoneNumber"
+          required
+        />
+        <span v-if="phoneNumberError" class="error-message">{{
+          phoneNumberError
+        }}</span>
       </div>
       <div class="button-group">
         <button type="submit" class="btn btn-primary">
@@ -59,12 +68,34 @@ export default {
     const time = ref("");
     const passengers = ref(1);
     const phone_number = ref("");
+    const phoneNumberError = ref("");
+
+    const validatePhoneNumber = () => {
+      let cleaned = phone_number.value.replace(/\D/g, "");
+      if (cleaned.length > 9) {
+        phoneNumberError.value = "Maksymalna liczba to 9 cyfr.";
+        cleaned = cleaned.slice(0, 9);
+      } else {
+        phoneNumberError.value = "";
+      }
+
+      if (/\D/.test(phone_number.value)) {
+        phoneNumberError.value = "Numer może składać się tylko z cyfr.";
+      }
+
+      phone_number.value = cleaned;
+    };
 
     const publishRide = async () => {
       const user = store.state.user;
       if (!user) {
         alert("Proszę zalogować się przed dodaniem przejazdu.");
         router.push("/login");
+        return;
+      }
+
+      if (phone_number.value.length !== 9) {
+        alert("Numer telefonu musi zawierać dokładnie 9 cyfr.");
         return;
       }
 
@@ -111,6 +142,8 @@ export default {
       time,
       passengers,
       phone_number,
+      phoneNumberError,
+      validatePhoneNumber,
       publishRide,
       goBack,
     };
@@ -143,6 +176,13 @@ export default {
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 0.25rem;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: block;
 }
 
 .button-group {
