@@ -1,4 +1,4 @@
-# projekt_zd2
+# projekt
 
 ## Project setup
 ```
