@@ -70,6 +70,7 @@ export default {
     const phone_number = ref("");
     const phoneNumberError = ref("");
 
+    // Funkcja walidująca numer telefonu
     const validatePhoneNumber = () => {
       let cleaned = phone_number.value.replace(/\D/g, "");
       if (cleaned.length > 9) {
@@ -86,6 +87,7 @@ export default {
       phone_number.value = cleaned;
     };
 
+    // Funkcja obsługująca publikację przejazdu
     const publishRide = async () => {
       const user = store.state.user;
       if (!user) {

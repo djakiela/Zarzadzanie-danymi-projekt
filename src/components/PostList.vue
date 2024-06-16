@@ -47,6 +47,7 @@ export default {
     }
   },
   methods: {
+    // Funkcja przełącza widoczność numeru telefonu dla wybranego przejazdu
     togglePhoneNumber(index) {
       this.rides[index].showPhoneNumber = !this.rides[index].showPhoneNumber;
     },

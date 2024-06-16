@@ -84,6 +84,7 @@ export default {
       }
     };
 
+    // Funkcja przełączająca widoczność numeru telefonu dla wybranego przejazdu
     const togglePhoneNumber = (id) => {
       const ride = rides.value.find((ride) => ride.id === id);
       if (ride) {
@@ -95,6 +96,7 @@ export default {
       router.push("/");
     };
 
+    // Funkcja emitująca dane wyszukiwania
     const emitSearch = () => {
       emit("search", {
         departure: departure.value,

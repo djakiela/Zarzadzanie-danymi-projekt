@@ -49,14 +49,17 @@ export default {
 
     const currentUser = computed(() => store.state.user);
 
+    // Funkcja przełącza widoczność rozwijanego menu
     const toggleDropdown = () => {
       isDropdownActive.value = !isDropdownActive.value;
     };
 
+    // Funkcja zamyka rozwijane menu
     const closeDropdown = () => {
       isDropdownActive.value = false;
     };
 
+    // Funkcja obsługuje wylogowanie użytkownika
     const logout = async () => {
       try {
         const response = await fetch("http://localhost:8000/user/logout", {

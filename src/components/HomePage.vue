@@ -20,6 +20,7 @@ export default {
   setup() {
     const router = useRouter();
 
+    // Funkcja do nawigacji do strony wyszukiwania z przekazanymi parametrami wyszukiwania
     const goSearch = (searchParams) => {
       router.push({
         path: "/search",
