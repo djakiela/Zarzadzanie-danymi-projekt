@@ -22,9 +22,9 @@
       </div>
     </form>
 
-    <div class="ride-results" v-if="rides.length">
-      <h2>Wyniki wyszukiwania:</h2>
-      <ul>
+    <div class="ride-results">
+      <h2 v-if="rides.length">Wyniki wyszukiwania:</h2>
+      <ul v-if="rides.length">
         <li v-for="ride in rides" :key="ride.id">
           <p>Miejsce wyjazdu: {{ ride.departure }}</p>
           <p>Miejsce docelowe: {{ ride.destination }}</p>
@@ -39,6 +39,7 @@
           </button>
         </li>
       </ul>
+      <p v-else-if="hasSearched">Brak przejazdów w danym terminie.</p>
     </div>
   </div>
 </template>
@@ -53,9 +54,11 @@ export default {
     const destination = ref("");
     const date = ref("");
     const rides = ref([]);
+    const hasSearched = ref(false);
     const router = useRouter();
     const route = useRoute();
 
+    // Funkcja wyszukująca przejazdy na podstawie wprowadzonych danych
     const searchRides = async () => {
       try {
         const response = await fetch("http://localhost:8000/ride/search", {
@@ -79,8 +82,10 @@ export default {
           ...ride,
           showPhoneNumber: false,
         }));
+        hasSearched.value = true;
       } catch (error) {
         console.error("Błąd podczas wyszukiwania przejazdów:", error);
+        hasSearched.value = true;
       }
     };
 
@@ -103,8 +108,10 @@ export default {
         destination: destination.value,
         date: date.value,
       });
+      searchRides();
     };
 
+    // Inicjalizacja danych na podstawie parametrów trasy
     onMounted(() => {
       if (
         route.query.departure &&
@@ -123,6 +130,7 @@ export default {
       destination,
       date,
       rides,
+      hasSearched,
       searchRides,
       togglePhoneNumber,
       goBack,
