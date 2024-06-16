@@ -10,14 +10,14 @@ npm install
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Compiles backend
 ```
-npm run build
+cd backend
 ```
 
-### Lints and fixes files
+### Run Backend
 ```
-npm run lint
+uvicorn main:app --reload
 ```
 
 ### Customize configuration
