@@ -10,7 +10,7 @@ npm install
 npm run serve
 ```
 
-### Compiles backend
+### Backend
 ```
 cd backend
 ```
